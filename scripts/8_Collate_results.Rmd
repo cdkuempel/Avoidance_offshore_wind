@@ -1,0 +1,104 @@
+---
+title: "WDPA"
+author: "Caitie"
+date: "2025-09-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# COUNTRY RESULTS
+
+# Collate results
+
+```{r}
+result_files<-list.files(here("output_data/"), full.names = T)
+```
+
+# Count data
+
+```{r}
+count_results<- result_files[grep("count.c", result_files)]
+
+total<-read.csv(count_results[[1]]) %>% 
+  rename(total_wind = num_wind) %>% 
+  select(-X)
+
+count_results2<-count_results[2:length(count_results)]
+
+count_dfs<-lapply(count_results2, read.csv)
+
+combined_count <- do.call(rbind, count_dfs) %>% 
+  rename(overlap_wind = num_wind) %>% 
+  select(-X)
+
+combined_count2<-full_join(combined_count, total, by = "rgn_key") %>% 
+  mutate(overlap_wind = ifelse(is.na(overlap_wind) == T, 0, overlap_wind)) %>% 
+  mutate(prop_count = overlap_wind/total_wind) %>% 
+  mutate(type = ifelse(is.na(type) == T, "Non-strict MPA", type))
+
+```
+
+```{r}
+write.csv(combined_count2, here("output_data/Collated/Combined_count_by_country.csv"))
+```
+
+
+# Area data
+
+```{r}
+area_results<- result_files[grep("area", result_files)]
+area_results<-area_results[grep("Country", area_results, invert = T)]
+#area_results<-area_results[grep("Collated", area_results, invert = T)]
+
+area_dfs<-lapply(area_results, read.csv)
+
+c_result_files<-result_files[grep("Country", result_files)][[1]]
+
+ow_area<-read.csv(c_result_files)
+```
+
+```{r}
+combined_area<-c()
+
+# Only do 1:5 as wilderness is messing things up
+for(i in 1:length(area_dfs)){
+  df<-area_dfs[[i]]
+  print(i)
+  colnames(df)[4] <- "feature_km2"
+  combined_area<-rbind(combined_area, df)
+  
+}
+```
+```{r}
+combined_areaX<-combined_area %>% 
+  select(-X) %>% 
+  distinct(.)
+
+combined_area2<-full_join(combined_areaX, ow_area, by = c("rgn_key", "buff")) %>% 
+  mutate(prop_wind_int= int_km2/iso3_wind_km2) %>% 
+  select(-X)
+
+test<-combined_area2 %>% 
+  select(rgn_key, buff, iso3_wind_km2) %>% 
+  distinct(.)
+
+
+write.csv(combined_area2, here("output_data/Collated/Combined_area_by_country.csv"))
+```
+
+```{r}
+all<-full_join(combined_area2, total, by = c("rgn_key")) 
+all2<-full_join(all, combined_count2, by = c("rgn_key", "type", "total_wind")) %>% 
+  mutate(overlap_wind = ifelse(is.na(overlap_wind) == T, 0, overlap_wind),
+        prop_count = overlap_wind/total_wind)
+```
+
+```{r}
+write.csv(all2, here("output_data/Collated/Final_country_all_results.csv"))
+```
+
+
+
