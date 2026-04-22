@@ -21,15 +21,6 @@ library(sf)
 wdpa<-wdpa_fetch("global", wait = TRUE, download_dir = rappdirs::user_data_dir("wdpar"))
 ```
 
-# These are the countries that overlap with 25 km buffer infrastructure
-
-Paolo
-```{r}
-#coi<-c("TWN", "USA", "FIN", "DNK", "DEU", "NLD", "POL", "FRA", "GBR", "IRL", "VNM", "CHN", "KOR", "CAN", #"SWE", "NOR", "CHL", "BEL", "RUS")
-```
-
-Global Wind Tracker
-
 ```{r}
 coi2<-c("RUS","BRA","FIN","FRA","GBR","BEL","CAN","ESP","DEU","DNK","IRL","SWE","NLD","NOR","GRC","ITA","POL","PRT" ,"TWN", "TUR" ,"TON", "USA" ,"VNM" ,"CHN" ,"ARE" ,"JPN" ,"NAM" ,"NFK", "CHL", "LKA", "KOR")
 ```
