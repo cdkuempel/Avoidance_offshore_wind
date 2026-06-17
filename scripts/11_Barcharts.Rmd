@@ -117,8 +117,8 @@ ggplot(buff_mpa, aes(fill = buff, x = reorder(name, prop_int), y = prop_int*100)
   scale_fill_manual(values = c("25" = "grey", "15" = "grey35", "1" = "black"))+
   labs(x = "Country",
        y = "Marine protected area extent (%)\noverlapping with offshore wind\ninfrastructure",
-       fill = "Buffer size") +
- theme(legend.position = "none")
+       fill = "Buffer size") #+
+ #theme(legend.position = "none")
 ```
 ```{r}
 ggsave(here("figures/All_MPA_overlap_25_buff_sensitivity.png"), width = 4, height = 3)
